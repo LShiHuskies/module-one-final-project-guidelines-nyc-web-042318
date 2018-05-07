@@ -2,6 +2,7 @@ def welcome
   puts "Welcome To The BOOKSHELF"
   puts "What is your name?"
   user_name = gets.chomp
+  # User.find_or_create_by(name: user_name)
   get_inquiry_type
 end
 
@@ -21,13 +22,19 @@ end
 
 def get_author_from_user
   puts "Which author are you interested in?"
+  puts "1. John Ashbery"
+  puts "2. CA Conrad"
+  puts "3. Dorothea Lasky"
   author_choice = gets.chomp
-  find_author_books(author_choice)
+  if author_choice == "1"
+    find_author_books("John Ashbery")
+  elsif author_choice == "2"
+    find_author_books("CA Conrad")
+  elsif author_choice == "3"
+    find_author_books("Dorothea Lasky")
+  end
 end
 
-# def find_author_books(author_choice)
-#
-# end
 
 # def get_publisher_from_user
 #     puts "Which publisher's catalog would you like to search?"
