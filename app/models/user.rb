@@ -5,18 +5,23 @@ class User < ActiveRecord::Base
     def get_inquiry_type
       puts "What would you like to do? (select number)"
       puts "1. Get a list of books by an author."
-      puts "2. Find all the books published by a publisher within past year."
-      puts "3. Find a book based on ISBN." #(LIMIT BY 1)
-      puts "4. Get the most recent book by an author." #(limit by 1)
-      ## Find a book based on title and get the description
-      ## Get a list of books from a particular publisher
-      ## Rate the books in your booklist
+      puts "2. Search for book by title."
+      puts "3. View booklist and rate books."
+      puts "4. Get average rating for a book."
+
       user_input = gets.chomp
 
       if user_input == "1"
         self.get_author_from_user
       end
 
+      if user_input == "3"
+        self.view_and_rate
+      end
+
+      if user_input == "4"
+        self.get_title_for_average_rating
+      end
     end
 
     def get_author_from_user
@@ -122,22 +127,70 @@ class User < ActiveRecord::Base
         new_book = Book.find_or_create_by(title: book_array[integer_input - 1])
         an_author = Author.find_or_create_by(name: author_choice)
         new_book.author = an_author
-        Book_User.find_or_create_by(user_id: self.id, book_id: new_book.id)
+         new_book.save
+        BookUser.find_or_create_by(user_id: self.id, book_id: new_book.id)
+        get_inquiry_type
       else
         puts "Invalid input. Please enter a number that corresponds to a book on the above list."
       end
     end
 
     def book_user_instances
-      Book_User.all.select do |book_user|
+      BookUser.all.select do |book_user|
         book_user.user == self
       end
     end
 
-    def booklist
-      self.book_user_instances.map do |book_user_instance|
-        book_user_instance.book
+    # def booklist
+    #   self.book_user_instances.map do |book_user_instance|
+    #     book_user_instance.book
+    #   end
+    # end
+
+    def view_and_rate
+      counter = 0
+      self.books.each do |book|
+        counter +=1
+        puts "#{counter}. #{book.title} - #{book.author.name}"
       end
+      puts "Which of these books would you like to rate?"
+      choice = gets.chomp
+      integer_choice = choice.to_i
+      puts "What is your rating?"
+      rating_choice = gets.chomp
+      integer_rating_choice = rating_choice.to_i
+        book_user_instances.each do |instance|
+          if instance.book == self.books[integer_choice-1]
+            instance.review = integer_rating_choice
+            instance.save
+          end
+        end
+        get_inquiry_type
+    end
+
+    def get_title_for_average_rating
+      puts "For which book would you like to see the average rating?"
+      Book.all.each_with_index do |book, i|
+        puts "#{i + 1}. #{book.title} - #{book.author.name}"
+      end
+      user_choice = gets.chomp
+      user_choice_integer = user_choice.to_i
+      new_title = Book.all[user_choice_integer -1].title
+      average_rating(new_title)
+    end
+
+    def average_rating(new_title)
+      counter = 0
+      sum = 0
+      BookUser.all.each do |instance|
+        if instance.book.title == new_title
+          sum += instance.review
+          counter += 1
+        end
+      end
+      average = sum / counter
+      puts "The average review is #{average}."
+      get_inquiry_type
     end
 
 end
