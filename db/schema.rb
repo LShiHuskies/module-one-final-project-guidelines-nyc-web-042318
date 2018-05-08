@@ -10,10 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180507155453) do
+ActiveRecord::Schema.define(version: 20180508144304) do
 
   create_table "authors", force: :cascade do |t|
     t.string "name"
+  end
+
+  create_table "book_users", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "book_id"
+    t.integer "review"
   end
 
   create_table "books", force: :cascade do |t|
@@ -23,6 +29,10 @@ ActiveRecord::Schema.define(version: 20180507155453) do
   end
 
   create_table "publishers", force: :cascade do |t|
+    t.string "name"
+  end
+
+  create_table "users", force: :cascade do |t|
     t.string "name"
   end
 
