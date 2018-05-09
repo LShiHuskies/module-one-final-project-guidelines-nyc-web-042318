@@ -1,13 +1,13 @@
 def welcome
-  puts "Welcome To The BOOKSHELF"
-  puts "What is your name?"
+  puts "Welcome To The BOOKSHELF".colorize(:light_blue)
+  puts "What is your name?".colorize(:green)
   user_name = gets.chomp
   user = User.find_or_create_by(name: user_name)
   get_inquiry_type(user)
 end
 
 def get_inquiry_type(user)
-  puts "What would you like to do? (select number)"
+  puts "What would you like to do? (select number)".colorize(:light_blue)
   puts "1. Get a list of books by an author."
   puts "2. Search for book by title."
   puts "3. View booklist and rate books."
@@ -23,12 +23,12 @@ def get_inquiry_type(user)
   elsif user_input == "3"
     user.view_and_rate
   elsif user_input == "4"
-    user.get_title_for_average_rating
+    Book.get_title_for_average_rating(user)
   elsif user_input == "5"
-    puts "Thanks for visiting the BOOKSHELF!"
+    puts "Thanks for visiting the BOOKSHELF!".colorize(:green)
     exit
   else
-    puts "Invalid choice. Please enter a valid selection."
+    puts "Invalid choice. Please enter a valid selection.".colorize(:red)
     get_inquiry_type(user)
   end
 end
