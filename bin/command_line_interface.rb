@@ -8,7 +8,7 @@ end
 
 def get_inquiry_type(user)
   puts "What would you like to do? (select number)".colorize(:light_blue)
-  puts "1. Get a list of books by an author."
+  puts "1. Search for books by author."
   puts "2. Search for book by title."
   puts "3. View booklist and rate books."
   puts "4. Get average rating for a book."
