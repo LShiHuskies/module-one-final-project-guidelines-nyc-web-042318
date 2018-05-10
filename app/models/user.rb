@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
     has_many :books, through: :book_users
 
     def get_author_from_user
-      puts "Which author are you interested in?".colorize(:lightblue)
+      puts "Which author are you interested in?".colorize(:light_blue)
       puts "1. John Ashbery"
       puts "2. Daniel Borzutzky"
       puts "3. Lucie Brock-Broido"
@@ -88,37 +88,46 @@ class User < ActiveRecord::Base
         book_array << quality["volumeInfo"]["title"]
         end
       end
-      display_booklist(book_array)
+      display_booklist(book_array, author_choice)
       save_to_booklist(book_array, author_choice)
     end
 
-    def display_booklist(book_array)
+    def display_booklist(book_array, author_choice)
+      puts "Here is a list of books by #{author_choice}:".colorize(:light_blue)
+      puts "-----------------------------------------------------".colorize(:green)
       book_array.each_with_index do |book, i|
         puts "#{i + 1}. #{book}"
       end
+      puts "-----------------------------------------------------".colorize(:green)
     end
 
     def save_to_booklist(book_array, author_choice)
       puts "Would you like to save any of these books to your booklist? If yes, enter the corresponding number. If no, type menu.".colorize(:light_blue)
       selected_input = gets.chomp
-      if selected_input != "menu"
+      if selected_input == "menu"
+        get_inquiry_type(self)
+      elsif selected_input.to_i - 1 < book_array.length
         integer_input = selected_input.to_i
         if integer_input <= book_array.length
           new_book = Book.find_or_create_by(title: book_array[integer_input - 1])
           an_author = Author.find_or_create_by(name: author_choice)
           new_book.update(author: an_author)
-          BookUser.find_or_create_by(user_id: self.id, book_id: new_book.id)
+          if !self.books.include?(new_book)
+            self.books << new_book
+          end
+          # BookUser.find_or_create_by(user_id: self.id, book_id: new_book.id)
           puts "This book has successfully been addded to your booklist.".colorize(:light_blue)
-          display_booklist(book_array)
+          sleep(1)
+          display_booklist(book_array, author_choice)
           save_to_booklist(book_array, author_choice)
         end
-      elsif selected_input == "menu"
-        get_inquiry_type(self)
       else
-        puts "Invalid input. Please enter a number that corresponds to a book on the above list.".colorize(:red)
+        puts "Invalid input.".colorize(:red)
+        display_booklist(book_array, author_choice)
         save_to_booklist(book_array, author_choice)
       end
     end
+
 
     def titleize(str)
     str.capitalize!
@@ -143,11 +152,23 @@ class User < ActiveRecord::Base
       if book_hash["items"]
         book_hash["items"].each do |quality|
           if quality["volumeInfo"]["title"] == title_input
-            puts "Title: #{quality["volumeInfo"]["title"]}"
-            puts "Author: #{quality["volumeInfo"]["authors"].join}"
-            puts "Description: #{quality["volumeInfo"]["description"]}"
-            puts "Publisher: #{quality["volumeInfo"]["publisher"]}"
-            puts "Date of publication: #{quality["volumeInfo"]["publishedDate"]}"
+            sleep(0.5)
+            puts "-----------------------------------------------------".colorize(:green)
+            print "Title:".colorize(:light_blue)
+            puts " #{quality["volumeInfo"]["title"]}"
+            sleep(0.5)
+            print "Author:".colorize(:light_blue)
+            puts " #{quality["volumeInfo"]["authors"].join}"
+            sleep(0.5)
+            print "Description:".colorize(:light_blue)
+            puts " #{quality["volumeInfo"]["description"]}"
+            sleep(0.5)
+            print "Publisher:".colorize(:light_blue)
+            puts " #{quality["volumeInfo"]["publisher"]}"
+            sleep(0.5)
+            print "Date of publication:".colorize(:light_blue)
+            puts " #{quality["volumeInfo"]["publishedDate"]}"
+            puts "-----------------------------------------------------".colorize(:green)
             book_array << quality["volumeInfo"]["title"]
             book_author = quality["volumeInfo"]["authors"].join
             break
@@ -158,6 +179,7 @@ class User < ActiveRecord::Base
         save_to_booklist_with_single_book(book_array, book_author)
       else
         puts "No match found.".colorize(:red)
+        sleep(1)
         get_inquiry_type(self)
       end
     end
@@ -171,12 +193,13 @@ class User < ActiveRecord::Base
           new_book.update(author: an_author)
           BookUser.find_or_create_by(user_id: self.id, book_id: new_book.id)
           puts "This book has successfully been addded to your booklist.".colorize(:light_blue)
+          sleep(1)
           get_inquiry_type(self)
       elsif selected_input == "no"
         get_inquiry_type(self)
       else
-        puts "Invalid input. Please enter yes or no.".colorize(:light_blue)
-        save_to_booklist_with_single_book(book_array, author_choice)
+        puts "Invalid input. Please enter yes or no.".colorize(:red)
+        save_to_booklist_with_single_book(book_array, book_author)
       end
     end
 
@@ -193,7 +216,7 @@ class User < ActiveRecord::Base
         end
       end
       if book_array.length != 0
-        display_booklist(book_array)
+        display_booklist(book_array, author_input)
         save_to_booklist(book_array, author_input)
       else
         puts "No match found.".colorize(:red)
@@ -209,13 +232,14 @@ class User < ActiveRecord::Base
 
     def view_and_rate
       puts "Which of these books would you like to rate? Please enter the corresponding number, or type menu.".colorize(:light_blue)
+      sleep(1)
       self.books.each_with_index do |book, i|
         puts "#{i+1}. #{book.title} - #{book.author.name}"
       end
       choice = gets.chomp
       if choice == "menu"
         get_inquiry_type(self)
-      else
+      elsif choice.to_i - 1 < self.books.length
         choice = choice.to_i
         puts "What is your rating on a scale of 1 to 5?".colorize(:light_blue)
         rating_choice = gets.chomp.to_i
@@ -227,27 +251,35 @@ class User < ActiveRecord::Base
           if instance.book == self.books[choice-1]
             instance.update(review: rating_choice)
             puts "Your review for #{instance.book.title} is #{rating_choice}.".colorize(:light_blue)
+            puts "-----------------------------------------------------".colorize(:green)
+            sleep(1)
           end
         end
         get_inquiry_type(self)
+      else
+        puts "Invalid choice.".colorize(:red)
+        sleep(1)
+        view_and_rate
       end
     end
 
     def delete_from_booklist
       puts "Which of these books would you like to delete? Please enter the corresponding number.".colorize(:light_blue)
+      sleep(0.5)
       self.books.each_with_index do |book, i|
         puts "#{i+1}. #{book.title} - #{book.author.name}"
       end
       choice = gets.chomp.to_i
-      if choice - 1 > self.books.length
-        puts "That is not a valid choice."
-          delete_from_booklist
-      else
-        puts "#{book_user_instances[choice - 1].book.title} has been deleted from your booklist."
-        book_user_instances[choice - 1].destroy
-        sleep(0.5)
-        get_inquiry_type(self)
+      while choice - 1 > self.books.length
+        puts "That is not a valid choice. Please enter the corresponding number on the above list.".colorize(:red)
+        choice = gets.chomp.to_i
       end
+      book = self.books[choice - 1]
+      puts "#{self.books[choice - 1].title} has been deleted from your booklist.".colorize(:light_blue)
+      puts "-----------------------------------------------------".colorize(:green)
+      self.books.destroy(book.id)
+      sleep(1)
+      get_inquiry_type(self)
     end
 
 
