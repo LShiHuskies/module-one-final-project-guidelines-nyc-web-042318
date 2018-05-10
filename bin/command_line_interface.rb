@@ -12,7 +12,8 @@ def get_inquiry_type(user)
   puts "2. Search for book by title."
   puts "3. View booklist and rate books."
   puts "4. Get average rating for a book."
-  puts "5. Exit"
+  puts "5. Delete book from booklist."
+  puts "6. Exit"
 
   user_input = gets.chomp
 
@@ -25,6 +26,8 @@ def get_inquiry_type(user)
   elsif user_input == "4"
     Book.get_title_for_average_rating(user)
   elsif user_input == "5"
+    user.delete_from_booklist
+  elsif user_input == "6"
     puts "Thanks for visiting the BOOKSHELF!".colorize(:green)
     exit
   else

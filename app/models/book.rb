@@ -22,9 +22,8 @@ class Book < ActiveRecord::Base
 
   def self.average_rating(new_title, user)
     a_book = Book.find_by(title: new_title)
-    books_with_no_nil = []
-    books_with_no_nil << a_book.book_users.where.not(review: nil)
-    average = a_book.book_users.sum(:review) / books_with_no_nil.length
+    books_with_no_nil = a_book.book_users.where.not(review: nil)
+    average = a_book.book_users.sum(:review) / books_with_no_nil.length.to_f
     puts "The average review is #{average}.".colorize(:light_blue)
     get_inquiry_type(user)
   end

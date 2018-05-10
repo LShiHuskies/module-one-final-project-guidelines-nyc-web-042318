@@ -208,17 +208,21 @@ class User < ActiveRecord::Base
     end
 
     def view_and_rate
+      puts "Which of these books would you like to rate? Please enter the corresponding number, or type menu.".colorize(:light_blue)
       self.books.each_with_index do |book, i|
         puts "#{i+1}. #{book.title} - #{book.author.name}"
       end
-      puts "Which of these books would you like to rate? Please enter the corresponding number.".colorize(:light_blue)
-      choice = gets.chomp.to_i
-      puts "What is your rating on a scale of 1 to 5?".colorize(:light_blue)
-      rating_choice = gets.chomp.to_i
-      if rating_choice < 1 || rating_choice > 5
-        puts "Invalid rating. Please enter a valid choice 1 through 5.".colorize(:red)
+      choice = gets.chomp
+      if choice == "menu"
+        get_inquiry_type(self)
+      else
+        choice = choice.to_i
+        puts "What is your rating on a scale of 1 to 5?".colorize(:light_blue)
         rating_choice = gets.chomp.to_i
-      end
+        while rating_choice < 1 || rating_choice > 5
+            puts "Invalid rating. Please enter a rating on a scale of 1 to 5.".colorize(:red)
+            rating_choice = gets.chomp.to_i
+        end
         book_user_instances.each do |instance|
           if instance.book == self.books[choice-1]
             instance.update(review: rating_choice)
@@ -226,5 +230,25 @@ class User < ActiveRecord::Base
           end
         end
         get_inquiry_type(self)
+      end
     end
+
+    def delete_from_booklist
+      puts "Which of these books would you like to delete? Please enter the corresponding number.".colorize(:light_blue)
+      self.books.each_with_index do |book, i|
+        puts "#{i+1}. #{book.title} - #{book.author.name}"
+      end
+      choice = gets.chomp.to_i
+      if choice - 1 > self.books.length
+        puts "That is not a valid choice."
+          delete_from_booklist
+      else
+        puts "#{book_user_instances[choice - 1].book.title} has been deleted from your booklist."
+        book_user_instances[choice - 1].destroy
+        sleep(0.5)
+        get_inquiry_type(self)
+      end
+    end
+
+
 end
