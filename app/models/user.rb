@@ -39,9 +39,9 @@ class User < ActiveRecord::Base
       elsif author_choice == "6"
         self.find_author_books("Rita Dove")
       elsif author_choice == "7"
-        self.find_author_books("Carolyn Forché")
+        self.find_author_books("Carolyn Forche")
       elsif author_choice == "8"
-        self.find_author_books("Louise Glück")
+        self.find_author_books("Louise Gluck")
       elsif author_choice == "9"
         self.find_author_books("Terrance Hayes")
       elsif author_choice == "10"
@@ -65,7 +65,7 @@ class User < ActiveRecord::Base
       elsif author_choice == "19"
         self.find_author_books("Tracy K. Smith")
       elsif author_choice == "20"
-        self.find_author_books("Raúl Zurita")
+        self.find_author_books("Raul Zurita")
       elsif author_choice == "21"
         self.search_api_by_author
       end

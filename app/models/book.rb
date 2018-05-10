@@ -22,12 +22,11 @@ class Book < ActiveRecord::Base
     a_book = Book.find_by(title: new_title)
     books_with_no_nil = a_book.book_users.where.not(review: nil)
     average = a_book.book_users.sum(:review) / books_with_no_nil.length.to_f
-    #binding.pry
     if average > 0
-      puts "The average review is #{average.round(2)}.".colorize(:light_blue)
+      puts "The average rating for #{a_book.title} is #{average.round(2)}.".colorize(:light_blue)
       puts "-----------------------------------------------------".colorize(:green)
     else
-      puts "There are no reviews for #{new_title}.".colorize(:light_blue)
+      puts "There are no ratings for #{new_title}.".colorize(:light_blue)
     end
     sleep(1)
     get_inquiry_type(user)
